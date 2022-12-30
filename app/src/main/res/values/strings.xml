@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">TestAlfaGiftNewsApp</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="condes_news_image">news image</string>
+    <string name="lbl_search_news">Search News...</string>
+
+    <string-array name="category">
+        <item>Business</item>
+        <item>Entertainment</item>
+        <item>General</item>
+        <item>Health</item>
+        <item>Science</item>
+        <item>Sports</item>
+        <item>Technology</item>
+    </string-array>
+</resources>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.obidia.testalfagiftnewsapp.presentation.searchnews.SearchNewsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presentation.searchnews.SearchNewsFragment">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:hint="@string/lbl_search_news"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.kennyc.view.MultiStateView
+            android:id="@+id/msvNews"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etSearch"
+            app:msv_animateViewChanges="true"
+            app:msv_errorView="@layout/layout_no_connection"
+            app:msv_loadingView="@layout/shimmer_fragment_breakingnews"
+            app:msv_viewState="content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSearchNews"
+                listSearchNews="@{viewModel.data}"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="50dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_article_preview" />
+
+        </com.kennyc.view.MultiStateView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
