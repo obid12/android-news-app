@@ -6,7 +6,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ApiClient {
+interface ApiClient  {
     @GET("top-headlines/sources")
     suspend fun getSources(
         @Query("category")
