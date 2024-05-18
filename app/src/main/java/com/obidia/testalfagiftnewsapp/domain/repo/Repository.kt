@@ -11,6 +11,7 @@ interface  Repository{
         sources: String
     ): Flow<Resource<MutableList <NewsEntity>>>
 
+
     suspend fun getAllSources(): Flow<Resource<MutableList<SourcesEntity>>>
 
     suspend fun getSearchNews(query: String): Flow<Resource<MutableList<NewsEntity>>>
