@@ -7,7 +7,7 @@
 
         <variable
             name="entity"
-            type="com.obidia.testalfagiftnewsapp.data.model.response.CategoryResponse" />
+            type="com.obidia.testalfagiftnewsapp.data.model.CategoryResponse" />
     </data>
 
     <androidx.cardview.widget.CardView

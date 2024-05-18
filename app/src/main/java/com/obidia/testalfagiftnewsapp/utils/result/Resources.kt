@@ -1,12 +1,27 @@
 package com.obidia.testalfagiftnewsapp.utils.result
 
-//sealed class Resources<out T : Any, out U : Any> {
-//    data class Success<T : Any>(val data: T) : Resources<T, Nothing>()
-//    data class Error<T : Any, U : Any>(val data: T? = null, val response: U) : Resources<T, U>()
-//}
+sealed class ResponseResult<out R> {
+    data class Success<out T>(val data: T) : ResponseResult<T>()
+    data class Error(val throwable: Throwable) : ResponseResult<Nothing>()
+    object Loading: ResponseResult<Nothing>()
+}
 
-sealed class Resource<T>(val data: T? = null, val message: String? = null) {
-    class Success<T>(data: T) : Resource<T>(data)
-    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
-    class Loading<T>(data: T? = null) : Resource<T>(data)
+inline infix fun <T> ResponseResult<T>.loading(predicate: () -> Unit): ResponseResult<T> {
+    if (this is ResponseResult.Loading) {
+        predicate.invoke()
+    }
+    return this
+}
+
+inline infix fun <T> ResponseResult<T>.success(predicate: (data: T) -> Unit): ResponseResult<T> {
+    if (this is ResponseResult.Success && this.data != null) {
+        predicate.invoke(this.data)
+    }
+    return this
+}
+
+inline infix fun <T> ResponseResult<T>.error(predicate: (data: Throwable) -> Unit) {
+    if (this is ResponseResult.Error) {
+        predicate.invoke(this.throwable)
+    }
 }

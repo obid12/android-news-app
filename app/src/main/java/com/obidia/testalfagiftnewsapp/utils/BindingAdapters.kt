@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.request.ImageRequest
 import com.obidia.testalfagiftnewsapp.R
-import com.obidia.testalfagiftnewsapp.data.model.response.CategoryResponse
+import com.obidia.testalfagiftnewsapp.data.model.CategoryResponse
 import com.obidia.testalfagiftnewsapp.domain.entity.NewsEntity
 import com.obidia.testalfagiftnewsapp.domain.entity.SourcesEntity
 import com.obidia.testalfagiftnewsapp.presentation.categoryandsources.CategoryAdapter

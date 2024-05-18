@@ -13,9 +13,10 @@ import androidx.navigation.fragment.navArgs
 import com.kennyc.view.MultiStateView
 import com.obidia.testalfagiftnewsapp.R
 import com.obidia.testalfagiftnewsapp.databinding.FragmentBreakingNewsBinding
+import com.obidia.testalfagiftnewsapp.domain.entity.NewsEntity
+import com.obidia.testalfagiftnewsapp.utils.result.ResponseResult
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class BreakingNewsFragment : Fragment() {
@@ -25,7 +26,7 @@ class BreakingNewsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentBreakingNewsBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -33,13 +34,12 @@ class BreakingNewsFragment : Fragment() {
         with(binding) {
             rvNews.adapter = BreakingNewsAdapter(
                 BreakingNewsAdapter.OnClick {
-                    if (it != null) {
-                        findNavController().navigate(
-                            BreakingNewsFragmentDirections.actionBreakingNewsFragmentToDetailArticleFragment(
-                                it.url
-                            )
+                    if (it == null) return@OnClick
+                    findNavController().navigate(
+                        BreakingNewsFragmentDirections.actionBreakingNewsFragmentToDetailArticleFragment(
+                            it.url
                         )
-                    }
+                    )
                 }
             )
         }
@@ -54,24 +54,28 @@ class BreakingNewsFragment : Fragment() {
     }
 
     private fun observe() {
-        viewModel.state.flowWithLifecycle(lifecycle).onEach { state ->
-            handleState(state)
-        }.launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            viewModel.data.flowWithLifecycle(lifecycle).collect { state ->
+                handleState(state)
+            }
+        }
     }
 
-    private fun handleState(state: ListBreakingNewsState) {
+    private fun handleState(state: ResponseResult<MutableList<NewsEntity>>?) {
         with(binding) {
             when (state) {
-                is ListBreakingNewsState.Loading -> {
+                is ResponseResult.Loading -> {
                     msvNews.viewState = MultiStateView.ViewState.LOADING
                 }
 
-                is ListBreakingNewsState.Success -> {
+                is ResponseResult.Success -> {
                     msvNews.viewState = MultiStateView.ViewState.CONTENT
                 }
-                is ListBreakingNewsState.Error -> {
+
+                is ResponseResult.Error -> {
                     msvNews.viewState = MultiStateView.ViewState.ERROR
                 }
+
                 else -> {}
             }
         }
@@ -79,7 +83,7 @@ class BreakingNewsFragment : Fragment() {
     }
 
     private fun setToolbar() {
-        binding.toolbar.title = "Detail User"
+        binding.toolbar.title = "List News"
         binding.toolbar.setNavigationIcon(R.drawable.ic_search)
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigate(BreakingNewsFragmentDirections.actionBreakingNewsFragmentToSearchNewsFragment())

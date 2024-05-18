@@ -4,12 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.obidia.testalfagiftnewsapp.domain.entity.SourcesEntity
 import com.obidia.testalfagiftnewsapp.domain.usecase.UseCase
-import com.obidia.testalfagiftnewsapp.utils.result.Resource
+import com.obidia.testalfagiftnewsapp.utils.result.ResponseResult
+import com.obidia.testalfagiftnewsapp.utils.result.success
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,76 +16,34 @@ import javax.inject.Inject
 class ListSourcesViewModel @Inject constructor(
     private val useCase: UseCase
 ) : ViewModel() {
-    private val _state = MutableStateFlow<ListSourceState>(ListSourceState.Init)
-    val state get() = _state
 
-    private val _data = MutableStateFlow<MutableList<SourcesEntity>>(mutableListOf())
-    val data: StateFlow<MutableList<SourcesEntity>> get() = _data
-
-
-    private fun loading() {
-        _state.value = ListSourceState.Loading()
-    }
-
-    private fun success(dataEntity: MutableList<SourcesEntity>) {
-        _state.value = ListSourceState.Success(dataEntity)
-    }
-
-    private fun errorData(data: String) {
-        _state.value = ListSourceState.Error(data)
-
-    }
+    private val _data = MutableStateFlow<ResponseResult<MutableList<SourcesEntity>>?>(null)
+    val data get() = _data
+    val listSources = MutableStateFlow<MutableList<SourcesEntity>>(mutableListOf())
 
     fun getAllSources() {
         viewModelScope.launch {
             useCase.getAllSources()
-                .onStart {
-                    loading()
-                }.catch {
-
-                }.collect { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            result.data?.let { success(it) }
-                            _data.value = result.data!!
-                        }
-                        is Resource.Error -> {
-                        }
-                        else -> {}
+                .catch { _data.value = ResponseResult.Error(it) }
+                .collect {
+                    _data.value = it
+                    it.success { list ->
+                        listSources.value = list
                     }
                 }
         }
     }
-
 
     fun sources(category: String) {
         viewModelScope.launch {
             useCase.getSources(category)
-                .onStart {
-                    loading()
-
-                }.catch {
-                    errorData("Network Failure")
-                }
-                .collect { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            result.data?.let { success(it) }
-                            _data.value = result.data!!
-                        }
-                        is Resource.Error -> {
-                            result.message?.let { errorData(it) }
-                        }
-                        else -> {}
+                .catch { _data.value = ResponseResult.Error(it) }
+                .collect {
+                    it.success { list ->
+                        listSources.value = list
                     }
+                    _data.value = it
                 }
         }
     }
-}
-
-sealed class ListSourceState {
-    object Init : ListSourceState()
-    data class Loading(val loading: Boolean = true) : ListSourceState()
-    data class Success(val dataEntity: MutableList<SourcesEntity>) : ListSourceState()
-    data class Error(val error: String) : ListSourceState()
 }

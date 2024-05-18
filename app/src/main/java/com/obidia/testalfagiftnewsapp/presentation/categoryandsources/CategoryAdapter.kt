@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.obidia.testalfagiftnewsapp.R
-import com.obidia.testalfagiftnewsapp.data.model.response.CategoryResponse
+import com.obidia.testalfagiftnewsapp.data.model.CategoryResponse
 import com.obidia.testalfagiftnewsapp.databinding.ItemCategoryBinding
 
-class CategoryAdapter(val onClick: OnClick, private var context: Context) :
+class CategoryAdapter(private val onClick: OnClick, private var context: Context) :
     RecyclerView.Adapter<CategoryAdapter.ListViewHolder>() {
 
     var rowIndex = -1

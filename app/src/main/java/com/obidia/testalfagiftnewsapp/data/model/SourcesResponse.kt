@@ -1,4 +1,4 @@
-package com.obidia.testalfagiftnewsapp.data.model.response
+package com.obidia.testalfagiftnewsapp.data.model
 
 
 import com.google.gson.annotations.SerializedName

@@ -11,9 +11,10 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.kennyc.view.MultiStateView
 import com.obidia.testalfagiftnewsapp.databinding.FragmentSearchNewsBinding
+import com.obidia.testalfagiftnewsapp.domain.entity.NewsEntity
+import com.obidia.testalfagiftnewsapp.utils.result.ResponseResult
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchNewsFragment : Fragment() {
@@ -22,7 +23,7 @@ class SearchNewsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSearchNewsBinding.inflate(layoutInflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
@@ -38,38 +39,36 @@ class SearchNewsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.etSearch.addTextChangedListener { editable ->
-
-            if (editable.toString().isNotEmpty()) {
-                viewModel.searchNews(editable.toString())
-
-            }
+            if (editable.toString().isEmpty()) return@addTextChangedListener
+            viewModel.searchNews(editable.toString())
         }
 
         observe()
     }
 
     private fun observe() {
-        viewModel.state.flowWithLifecycle(lifecycle)
-            .onEach { state -> handleState(state) }
-            .launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            viewModel.data.flowWithLifecycle(lifecycle).collect { state -> handleState(state) }
+        }
     }
 
-    private fun handleState(state: ListSearchBreakingNewsState) {
+    private fun handleState(state: ResponseResult<MutableList<NewsEntity>>?) {
         with(binding) {
             when (state) {
-                is ListSearchBreakingNewsState.Loading -> {
+                is ResponseResult.Loading -> {
                     msvNews.viewState = MultiStateView.ViewState.LOADING
                 }
-                is ListSearchBreakingNewsState.Success -> {
+
+                is ResponseResult.Success -> {
                     msvNews.viewState = MultiStateView.ViewState.CONTENT
                 }
-                is ListSearchBreakingNewsState.Error -> {
+
+                is ResponseResult.Error -> {
                     msvNews.viewState = MultiStateView.ViewState.ERROR
                 }
+
                 else -> {}
             }
         }
-
     }
-
 }

@@ -1,7 +1,7 @@
 package com.obidia.testalfagiftnewsapp.data.api
 
-import com.obidia.testalfagiftnewsapp.data.model.response.NewsResponse
-import com.obidia.testalfagiftnewsapp.data.model.response.SourcesResponse
+import com.obidia.testalfagiftnewsapp.data.model.NewsResponse
+import com.obidia.testalfagiftnewsapp.data.model.SourcesResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

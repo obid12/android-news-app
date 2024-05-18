@@ -1,6 +1,5 @@
 package com.obidia.testalfagiftnewsapp.presentation.categoryandsources
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +12,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.kennyc.view.MultiStateView
 import com.obidia.testalfagiftnewsapp.R
-import com.obidia.testalfagiftnewsapp.data.model.response.CategoryResponse
+import com.obidia.testalfagiftnewsapp.data.model.CategoryResponse
 import com.obidia.testalfagiftnewsapp.databinding.FragmentCategoryBinding
+import com.obidia.testalfagiftnewsapp.domain.entity.SourcesEntity
 import com.obidia.testalfagiftnewsapp.utils.bindRecyclerViewListCatgory
+import com.obidia.testalfagiftnewsapp.utils.result.ResponseResult
+import com.obidia.testalfagiftnewsapp.utils.result.error
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import java.io.IOException
 
 @AndroidEntryPoint
 class CategoryFragment : Fragment() {
@@ -33,11 +35,19 @@ class CategoryFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        with(binding) {
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.getAllSources()
+        observeSources()
+
+        with(binding) {
             rvCategory.adapter = CategoryAdapter(
                 CategoryAdapter.OnClick {
                     viewModel?.sources(it?.categoryName!!)
+                    observeSources()
                 }, requireContext()
             )
 
@@ -46,58 +56,53 @@ class CategoryFragment : Fragment() {
 
             binding.rvSources.adapter = ListSourcesAdapter(
                 ListSourcesAdapter.OnClick {
-                    if (it != null) {
-                        findNavController().navigate(
-                            CategoryFragmentDirections.actionCategoryFragmentToBreakingNewsFragment(
-                                it.idSource
-                            )
+                    if (it == null) return@OnClick
+                    findNavController().navigate(
+                        CategoryFragmentDirections.actionCategoryFragmentToBreakingNewsFragment(
+                            it.idSource
                         )
-                    }
+                    )
                 }
             )
-
         }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.getAllSources()
-        observeSources()
     }
 
     private fun observeSources() {
-        viewModel.state.flowWithLifecycle(lifecycle).onEach { state ->
-            handleState(state)
-        }.launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            viewModel.data.flowWithLifecycle(lifecycle).collect { state ->
+                handleState(state)
+            }
+        }
     }
 
-    private fun handleState(state: ListSourceState) {
+    private fun handleState(state: ResponseResult<MutableList<SourcesEntity>>?) {
         with(binding) {
             when (state) {
-                is ListSourceState.Loading -> {
+                is ResponseResult.Loading -> {
                     msvSources.viewState = MultiStateView.ViewState.LOADING
                 }
-                is ListSourceState.Success -> {
+
+                is ResponseResult.Success -> {
                     msvSources.viewState = MultiStateView.ViewState.CONTENT
                 }
-                is ListSourceState.Error -> {
-                    if (state.error == "Network Failure") {
-                        msvSources.viewState = MultiStateView.ViewState.ERROR
-                    } else {
-                        Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+
+                is ResponseResult.Error -> {
+                    state.error {
+                        if (it is IOException) {
+                            msvSources.viewState = MultiStateView.ViewState.ERROR
+                            return
+                        }
+
+                        Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
                     }
                 }
+
                 else -> {}
             }
         }
-
-
     }
 
     private val listUsers: MutableList<CategoryResponse>
-        @SuppressLint("Recycle")
         get() {
             val dataCategory = resources.getStringArray(R.array.category)
 
@@ -109,7 +114,5 @@ class CategoryFragment : Fragment() {
                 listUser.add(category)
             }
             return listUser
-
         }
-
 }

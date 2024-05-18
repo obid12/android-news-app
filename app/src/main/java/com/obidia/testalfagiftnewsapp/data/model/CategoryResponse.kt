@@ -1,4 +1,4 @@
-package com.obidia.testalfagiftnewsapp.data.model.response
+package com.obidia.testalfagiftnewsapp.data.model
 
 import android.os.Parcelable
 import androidx.annotation.Keep
