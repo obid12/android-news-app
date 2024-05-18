@@ -27,5 +27,5 @@ interface ApiClient {
     suspend fun searchForNews(
         @Query("q")
         searchQuery: String
-    ): Response<NewsResponse>
+    ):  Response<NewsResponse>
 }
