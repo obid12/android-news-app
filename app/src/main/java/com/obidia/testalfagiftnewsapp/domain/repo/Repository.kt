@@ -9,7 +9,7 @@ interface  Repository{
     suspend fun getSourcs(category: String): Flow<Resource<MutableList<SourcesEntity>>>
     suspend fun getNews(
         sources: String
-    ): Flow<Resource<MutableList<NewsEntity>>>
+    ): Flow<Resource<MutableList <NewsEntity>>>
 
     suspend fun getAllSources(): Flow<Resource<MutableList<SourcesEntity>>>
 
