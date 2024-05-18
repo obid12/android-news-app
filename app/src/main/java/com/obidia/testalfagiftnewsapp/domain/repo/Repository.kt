@@ -5,7 +5,7 @@ import com.obidia.testalfagiftnewsapp.domain.entity.SourcesEntity
 import com.obidia.testalfagiftnewsapp.utils.result.ResponseResult
 import kotlinx.coroutines.flow.Flow
 
-interface  Repository {
+interface Repository {
     suspend fun getSources(category: String): Flow<ResponseResult<MutableList<SourcesEntity>>>
 
     suspend fun getNews(
